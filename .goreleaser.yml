@@ -35,3 +35,13 @@ changelog:
 
 release:
   prerelease: auto
+
+brews:
+  - github:
+      owner: itsdalmo
+      name: homebrew-tap
+    folder: Formula
+    homepage: https://github.com/itsdalmo/gotemplate
+    description: Template for go project and tap.
+    test: |
+      system "#{bin}/gotemplate --version"

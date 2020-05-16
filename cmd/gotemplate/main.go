@@ -8,7 +8,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var version string
+var version = "dev"
 
 func main() {
 	app := cli.New(os.Stdout).Version(version)
