@@ -1,4 +1,4 @@
-version: "2"
+version: 3
 
 env:
   TERM: screen-256color
@@ -14,7 +14,7 @@ tasks:
       - task: go-test
 
   ci:
-    dec: Run CI tests.
+    desc: Run CI tests.
     cmds:
       - task: go-generate
       - task: go-test
