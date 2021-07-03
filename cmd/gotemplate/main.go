@@ -1,16 +1,18 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"os"
 
 	"github.com/itsdalmo/gotemplate/internal/cli"
-
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var version = "dev"
-
 func main() {
-	app := cli.New(os.Stdout).Version(version)
-	kingpin.MustParse(app.Parse(os.Args[1:]))
+	app := cli.New(cli.Options{Writer: os.Stdout})
+
+	if err := app.ParseAndRun(context.Background(), os.Args[1:]); err != nil {
+		fmt.Printf("error: %s", err.Error())
+		os.Exit(1)
+	}
 }

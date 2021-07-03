@@ -2,6 +2,9 @@ package cli_test
 
 import (
 	"bytes"
+	"context"
+	"errors"
+	"flag"
 	"reflect"
 	"strings"
 	"testing"
@@ -17,7 +20,7 @@ func TestCLI(t *testing.T) {
 	}{
 		{
 			description: "works",
-			command:     []string{"hello", "there", "--times", "2"},
+			command:     []string{"--times", "2", "hello", "there"},
 			expected: strings.TrimSpace(`
 hello
 there
@@ -29,16 +32,11 @@ there
 			description: "help message",
 			command:     []string{"--help"},
 			expected: strings.TrimSpace(`
-usage: gotemplate [<flags>] [<message>...]
+USAGE
+  gotemplate [-n times] <arg>
 
-Template for go CLIs
-
-Flags:
-  --help     Show context-sensitive help (also try --help-long and --help-man).
-  --times=1  Number of times to print the messages
-
-Args:
-  [<message>]  Message(s) to print
+FLAGS
+  -times 1  Number of times to print the messages
 			 `),
 		},
 	}
@@ -46,13 +44,9 @@ Args:
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
 			var b bytes.Buffer
-			app := cli.New(&b)
-			app.Writer(&b)
-			app.ErrorWriter(&b)
-			app.Terminate(nil)
+			app := cli.New(cli.Options{Writer: &b})
 
-			_, err := app.Parse(tc.command)
-			if err != nil {
+			if err := app.ParseAndRun(context.Background(), tc.command); err != nil && !errors.Is(err, flag.ErrHelp) {
 				t.Fatalf("unexpected error: %s", err)
 			}
 			eq(t, tc.expected, strings.TrimSpace(b.String()))
