@@ -1,13 +1,10 @@
 package cli
 
 import (
-	"context"
-	"flag"
+	"github.com/spf13/cobra"
 	"io"
 
 	"github.com/itsdalmo/gotemplate"
-
-	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
 type Options struct {
@@ -18,29 +15,26 @@ type Flags struct {
 	Times int
 }
 
-func New(opts Options) *ffcli.Command {
-	var (
-		f  = Flags{}
-		fs = flag.NewFlagSet("gotemplate", flag.ContinueOnError)
-	)
-	fs.SetOutput(opts.Writer)
-
-	fs.IntVar(&f.Times, "times", 1, "Number of times to print the messages")
-
-	return &ffcli.Command{
-		Name:       "gotemplate",
-		ShortHelp:  "Template for go CLIs",
-		ShortUsage: "gotemplate [-n times] <arg>",
-		FlagSet:    fs,
-		Exec: func(ctx context.Context, args []string) error {
+func New(opts Options) *cobra.Command {
+	f := Flags{}
+	c := &cobra.Command{
+		Use:   "gotemplate [flags] <arg...>",
+		Short: "Template for go CLIs",
+		Args:  cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
 			for i := 0; i < f.Times; i++ {
-				for _, m := range fs.Args() {
+				for _, m := range args {
 					gotemplate.Print(opts.Writer, m)
 				}
 			}
 			return nil
 		},
 	}
+
+	c.SetOut(opts.Writer)
+	c.Flags().IntVar(&f.Times, "times", 1, "Number of times to print the messages")
+
+	return c
 }
 
 //// New returns a new kingpin.Application.
